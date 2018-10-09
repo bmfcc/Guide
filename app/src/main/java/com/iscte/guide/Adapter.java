@@ -46,7 +46,7 @@ public class Adapter extends PagerAdapter {
     @Override
     public Object instantiateItem(ViewGroup view, int position) {
         View myImageLayout = inflater.inflate(R.layout.slide, view, false);
-        ImageView myImage = (ImageView) myImageLayout.findViewById(R.id.image);
+        ImageView myImage = myImageLayout.findViewById(R.id.image);
 
         storage = FirebaseStorage.getInstance();
         storageRef = storage.getReference();
