@@ -12,6 +12,7 @@ import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -40,7 +41,11 @@ public class MapActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
 
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        SharedPreferences preferences = getSharedPreferences(PREFS_NAME,0);
+        String mySpace = preferences.getString("current_space", "Default");
+
+        FirebaseApp app = FirebaseApp.getInstance(mySpace);
+        FirebaseDatabase database = FirebaseDatabase.getInstance(app);
         dbSettingsRef = database.getReference("Settings");
         dbMapInfoRef = database.getReference("MapInfo");
 

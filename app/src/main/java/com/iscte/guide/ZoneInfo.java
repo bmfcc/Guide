@@ -24,6 +24,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -82,6 +83,7 @@ public class ZoneInfo extends AppCompatActivity implements SeekBar.OnSeekBarChan
         }
 
         String language = preferences.getString("selected_language","Default");
+        String mySpace = preferences.getString("current_space", "Default");
 
         if(language.equals("Default")){
             final AlertDialog.Builder dialBuilder1 = new AlertDialog.Builder(this);
@@ -96,7 +98,8 @@ public class ZoneInfo extends AppCompatActivity implements SeekBar.OnSeekBarChan
             language="EN";
         }
 
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        FirebaseApp app = FirebaseApp.getInstance(mySpace);
+        FirebaseDatabase database = FirebaseDatabase.getInstance(app);
         dbRef = database.getReference("Zones").child(language+"/"+stringZone);
         dbStatsRef = database.getReference("Stats");
 

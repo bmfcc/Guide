@@ -5,12 +5,14 @@ package com.iscte.guide;
  */
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.support.v4.view.PagerAdapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
@@ -22,14 +24,19 @@ public class Adapter extends PagerAdapter {
     private LayoutInflater inflater;
     private Context context;
 
+    private String mySpace;
+
     private FirebaseStorage storage;
     private StorageReference storageRef;
     private StorageReference imagesRef;
 
+    public static final String PREFS_NAME = "MyPrefsFile";
 
-    public Adapter(Context context, ArrayList<String> images) {
+
+    public Adapter(Context context, ArrayList<String> images, String mySpace) {
         this.context = context;
         this.images=images;
+        this.mySpace=mySpace;
         inflater = LayoutInflater.from(context);
     }
 
@@ -48,7 +55,9 @@ public class Adapter extends PagerAdapter {
         View myImageLayout = inflater.inflate(R.layout.slide, view, false);
         ImageView myImage = myImageLayout.findViewById(R.id.image);
 
-        storage = FirebaseStorage.getInstance();
+        getStorageInstance();
+
+        //storage = FirebaseStorage.getInstance();
         storageRef = storage.getReference();
         imagesRef = storageRef.child("Images").child("Slide");
 
@@ -63,5 +72,13 @@ public class Adapter extends PagerAdapter {
     @Override
     public boolean isViewFromObject(View view, Object object) {
         return view.equals(object);
+    }
+
+    private void getStorageInstance(){
+
+        FirebaseApp firebaseApp = FirebaseApp.getInstance(mySpace);
+
+        storage = FirebaseStorage.getInstance(firebaseApp);
+
     }
 }

@@ -1,35 +1,27 @@
 {
   "project_info": {
-    "project_number": "225378664149",
-    "firebase_url": "https://guide-f78a3.firebaseio.com",
-    "project_id": "guide-f78a3",
-    "storage_bucket": "guide-f78a3.appspot.com"
+    "project_number": "846749148844",
+    "firebase_url": "https://guidemanagement-44882.firebaseio.com",
+    "project_id": "guidemanagement-44882",
+    "storage_bucket": "guidemanagement-44882.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:225378664149:android:702ca277bff5cc8a",
+        "mobilesdk_app_id": "1:846749148844:android:702ca277bff5cc8a",
         "android_client_info": {
           "package_name": "com.iscte.guide"
         }
       },
       "oauth_client": [
         {
-          "client_id": "225378664149-3d191jk96a861a6j5rn894scc9aronms.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.iscte.guide",
-            "certificate_hash": "fed09be9eaf2c6cca8e4ab0768d77b8571e47085"
-          }
-        },
-        {
-          "client_id": "225378664149-p43c7791rc410f0og1pgu5nha86h65tl.apps.googleusercontent.com",
+          "client_id": "846749148844-0kn56jf9sfr7kqu82dstgcil115t4j2s.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyBkN2Htk-X0lrUy6kiuX-6AWYpJfHOtDlg"
+          "current_key": "AIzaSyCcB_iU4I618YhxIm247jcAtPY9Xco8EhU"
         }
       ],
       "services": {
@@ -37,13 +29,8 @@
           "status": 1
         },
         "appinvite_service": {
-          "status": 2,
-          "other_platform_oauth_client": [
-            {
-              "client_id": "225378664149-p43c7791rc410f0og1pgu5nha86h65tl.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
+          "status": 1,
+          "other_platform_oauth_client": []
         },
         "ads_service": {
           "status": 2

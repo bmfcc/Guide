@@ -31,9 +31,11 @@
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".NewsView"
-            android:parentActivityName=".NewsRV"></activity>
-        <activity android:name=".MapActivity"
-            android:parentActivityName=".Main2Activity"></activity>
+            android:parentActivityName=".NewsRV" />
+        <activity
+            android:name=".MapActivity"
+            android:parentActivityName=".Main2Activity" />
+        <activity android:name=".GetSpace"></activity>
     </application>
 
 </manifest>

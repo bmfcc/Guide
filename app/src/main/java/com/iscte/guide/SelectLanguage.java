@@ -24,6 +24,7 @@ import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -59,6 +60,8 @@ public class SelectLanguage extends AppCompatActivity {
 
     private ConstraintLayout constLayoutProgress;
 
+    private String mySpace;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -76,13 +79,12 @@ public class SelectLanguage extends AppCompatActivity {
         constLayoutProgress.setVisibility(View.VISIBLE);
 
         spinner = findViewById(R.id.spinner);
-        //spinner.setClickable(false);
 
         confirmButton = findViewById(R.id.OK_button);
-        //confirmButton.setClickable(false);
 
         SharedPreferences preferences = getSharedPreferences(PREFS_NAME,0);
         language = preferences.getString("selected_language", "Default");
+        mySpace = preferences.getString("current_space", "Default");
 
         getDBInfo();
 
@@ -108,7 +110,9 @@ public class SelectLanguage extends AppCompatActivity {
 
     private void getDBInfo(){
 
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        FirebaseApp app = FirebaseApp.getInstance(mySpace);
+        FirebaseDatabase database = FirebaseDatabase.getInstance(app);
+
         dbSettingsRef = database.getReference("Settings");
 
         if(language.equals("Default")){
@@ -187,7 +191,8 @@ public class SelectLanguage extends AppCompatActivity {
 
     private void getStorageInfo(String mapImageName, String logoImage){
 
-        storage = FirebaseStorage.getInstance();
+        FirebaseApp app = FirebaseApp.getInstance(mySpace);
+        storage = FirebaseStorage.getInstance(app);
         storageRef = storage.getReference();
         imagesRef = storageRef.child("Images");
 

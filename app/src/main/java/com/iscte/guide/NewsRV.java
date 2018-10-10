@@ -17,6 +17,7 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.widget.TextView;
 
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -41,7 +42,7 @@ public class NewsRV extends AppCompatActivity implements NavigationView.OnNaviga
     private DatabaseReference dbMenuRef;
 
     private String language;
-
+    private String mySpace;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +66,7 @@ public class NewsRV extends AppCompatActivity implements NavigationView.OnNaviga
 
         SharedPreferences preferences = getSharedPreferences(PREFS_NAME,0);
         language = preferences.getString("selected_language","EN");
+        mySpace = preferences.getString("current_space", "Default");
 
         mRecyclerView = (RecyclerView) findViewById(R.id.news_RV);
 
@@ -107,7 +109,9 @@ public class NewsRV extends AppCompatActivity implements NavigationView.OnNaviga
         } else if (id == R.id.nav_report) {
 
         } else if (id == R.id.nav_classify) {
-
+            Intent intent = new Intent(this, GetSpace.class);
+            startActivity(intent);
+            finish();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -166,7 +170,8 @@ public class NewsRV extends AppCompatActivity implements NavigationView.OnNaviga
 
     private void getDBInfo(){
 
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        FirebaseApp app = FirebaseApp.getInstance(mySpace);
+        FirebaseDatabase database = FirebaseDatabase.getInstance(app);
         dbRef = database.getReference("News").child(language+"/"+"newsList");
         dbMenuRef = database.getReference("Menu").child(language);
 

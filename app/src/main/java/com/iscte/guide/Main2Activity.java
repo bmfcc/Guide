@@ -34,11 +34,14 @@ import com.estimote.proximity_sdk.proximity.ProximityAttachment;
 import com.estimote.proximity_sdk.proximity.ProximityObserver;
 import com.estimote.proximity_sdk.proximity.ProximityObserverBuilder;
 import com.estimote.proximity_sdk.proximity.ProximityZone;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.FirebaseOptions;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.iscte.guide.models.AppInfo;
 import com.iscte.guide.models.History;
 import com.iscte.guide.models.Menu;
 import com.iscte.guide.models.Messages;
@@ -62,6 +65,8 @@ public class Main2Activity extends AppCompatActivity
     protected String name = "my_package_channel";
     private String zoneID = null;
     private String language;
+    private String previousLanguage;
+    private String mySpace;
 
     private String zoneNotFound = "You have not passed any of our zones yet";
     private String zoneFound = "Your last zone was: zoneID! Do you wanna know more?";
@@ -72,6 +77,10 @@ public class Main2Activity extends AppCompatActivity
     private DatabaseReference dbHistoryRef;
     private DatabaseReference dbMenuRef;
     private DatabaseReference dbMessagesRef;
+
+    private FirebaseDatabase database;
+
+    private AppInfo appInfo;
 
     private ArrayList<String> slidingImages;
     private static ViewPager mPager;
@@ -86,12 +95,12 @@ public class Main2Activity extends AppCompatActivity
 
         createNotificationChannel();
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setTitleTextColor(getResources().getColor(R.color.textColorPrimary));
         toolbar.setSubtitleTextColor(getResources().getColor(R.color.textColorPrimary));
         setSupportActionBar(toolbar);
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         toggle.getDrawerArrowDrawable().setColor(getResources().getColor(R.color.textColorPrimary));
@@ -103,30 +112,19 @@ public class Main2Activity extends AppCompatActivity
 
         SharedPreferences preferences = getSharedPreferences(PREFS_NAME,0);
         language = preferences.getString("selected_language", "Default");
+        mySpace = preferences.getString("current_space", "Default");
 
         Intent myIntent = getIntent();
-        String previousLanguage = myIntent.getStringExtra("prevLanguage");
+        previousLanguage = myIntent.getStringExtra("prevLanguage");
 
         previousLanguage = previousLanguage == null ? language : previousLanguage;
 
-        if(language.equals("Default")){
-            selectLanguage();
+        if(mySpace.equals("Default")){
+            Intent intent = new Intent(this, GetSpace.class);
+            startActivity(intent);
             finish();
         }else {
-            setSlider();
-
-            String setupBeacons = SetupBeacons.getInstance().getSetupBeacons();
-
-            if(setupBeacons.equals("True") || language != previousLanguage) {
-
-                if(proximityHandler!=null){
-                    proximityHandler.stop();
-                }
-                setupBeacons();
-
-                SetupBeacons.getInstance().setSetupBeacons("False");
-            }
-
+            getDBInstance();
         }
     }
 
@@ -169,7 +167,9 @@ public class Main2Activity extends AppCompatActivity
         } else if (id == R.id.nav_report) {
 
         } else if (id == R.id.nav_classify) {
-
+            Intent intent = new Intent(this, GetSpace.class);
+            startActivity(intent);
+            finish();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -371,7 +371,6 @@ public class Main2Activity extends AppCompatActivity
 
     private void getDBInfo(){
 
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
         dbImagesRef = database.getReference("SlidingImages");
 
         dbHistoryRef = database.getReference("History").child(language);
@@ -388,7 +387,7 @@ public class Main2Activity extends AppCompatActivity
                 slidingImages = (ArrayList<String>) dataSnapshot.getValue();
 
                 mPager = (ViewPager) findViewById(R.id.pager);
-                mPager.setAdapter(new Adapter(Main2Activity.this,slidingImages));
+                mPager.setAdapter(new Adapter(Main2Activity.this,slidingImages,mySpace));
                 CircleIndicator indicator = (CircleIndicator) findViewById(R.id.indicator);
                 indicator.setViewPager(mPager);
                 // ...
@@ -482,5 +481,81 @@ public class Main2Activity extends AppCompatActivity
             }
         };
         dbMessagesRef.addListenerForSingleValueEvent(postListenerMessages);
+    }
+
+    private void getDBInstance(){
+
+        database = FirebaseDatabase.getInstance();
+
+        DatabaseReference allowedApps = database.getReference("allowedApps").child(mySpace);
+
+        ValueEventListener postListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                // Get Post object and use the values to update the UI
+
+                appInfo = dataSnapshot.getValue(AppInfo.class);
+
+                getAppInstance();
+                // ...
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                // Getting Post failed, log a message
+                Log.w("GetBDValueError", "loadPost:onCancelled", databaseError.toException());
+                appInfo = null;
+                // ...
+            }
+        };
+        allowedApps.addListenerForSingleValueEvent(postListener);
+
+    }
+
+    private void getAppInstance(){
+
+        boolean existApp = false;
+
+        for(FirebaseApp appAux: FirebaseApp.getApps(this)){
+            if(appAux.getName().equals(mySpace)){
+                existApp = true;
+                break;
+            }
+        }
+
+        if(!existApp){
+            FirebaseOptions options = new FirebaseOptions.Builder()
+                    .setApplicationId(appInfo.getApplicationId()) // Required for Analytics.
+                    .setApiKey(appInfo.getApiKey()) // Required for Auth.
+                    .setDatabaseUrl(appInfo.getDatabaseURL()) // Required for RTDB.
+                    .setStorageBucket(appInfo.getStorageBucket())
+                    .build();
+
+            FirebaseApp.initializeApp(this,options,mySpace);
+        }
+
+        FirebaseApp app = FirebaseApp.getInstance(mySpace);
+        database = FirebaseDatabase.getInstance(app);
+
+        if (language.equals("Default")) {
+            selectLanguage();
+            finish();
+        } else {
+            setSlider();
+
+            String setupBeacons = SetupBeacons.getInstance().getSetupBeacons();
+
+            if (setupBeacons.equals("True") || language != previousLanguage) {
+
+                if (proximityHandler != null) {
+                    proximityHandler.stop();
+                }
+                setupBeacons();
+
+                SetupBeacons.getInstance().setSetupBeacons("False");
+            }
+
+        }
+
     }
 }
