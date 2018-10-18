@@ -13,8 +13,6 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -199,8 +197,9 @@ public class SelectLanguage extends AppCompatActivity {
         //Download MapImage
 
         File file = new File(this.getFilesDir(), "map");
+        File mapFile = new File(file,mapImageName);
 
-        if(file.exists()){
+        if(file.exists()&&mapFile.exists()){
             File mapImageFile = new File(file,mapImageName);
 
             if(isNewVersion()){

@@ -205,7 +205,7 @@ public class Main2Activity extends AppCompatActivity
 
     private void setupBeacons(){
         EstimoteCloudCredentials cloudCredentials =
-                new EstimoteCloudCredentials("guide-how", "861b9e3dc034aa6c3a7afa2c51220271");
+                new EstimoteCloudCredentials("guide-3nq", "dc1792305ba1e69f71d87cc29f7dc47e");
 
         final Intent notificationIntent = new Intent(this, ZoneInfo.class);
         notificationIntent.setAction(Intent.ACTION_MAIN);
@@ -245,7 +245,7 @@ public class Main2Activity extends AppCompatActivity
                         .build();
 
         ProximityZone zone1 = this.proximityObserver.zoneBuilder()
-                .forAttachmentKeyAndValue("beacon_from", "zoo")
+                .forAttachmentKeyAndValue("beacon_from", mySpace)
                 .inNearRange()
                 .withOnEnterAction(new Function1<ProximityAttachment, Unit>() {
                     @Override

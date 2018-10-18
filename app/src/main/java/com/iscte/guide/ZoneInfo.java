@@ -66,6 +66,8 @@ public class ZoneInfo extends AppCompatActivity implements SeekBar.OnSeekBarChan
     private StorageReference imagesRef;
     private StorageReference audioRef;
 
+    private String mySpace;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -83,7 +85,7 @@ public class ZoneInfo extends AppCompatActivity implements SeekBar.OnSeekBarChan
         }
 
         String language = preferences.getString("selected_language","Default");
-        String mySpace = preferences.getString("current_space", "Default");
+        mySpace = preferences.getString("current_space", "Default");
 
         if(language.equals("Default")){
             final AlertDialog.Builder dialBuilder1 = new AlertDialog.Builder(this);
@@ -369,12 +371,12 @@ public class ZoneInfo extends AppCompatActivity implements SeekBar.OnSeekBarChan
 
         } else {
 
-            visitedZonesObject = new VisitedZones(visitedZones);
+            visitedZonesObject = new VisitedZones(visitedZones, mySpace);
 
             ArrayList<String> vZones = visitedZonesObject.getVisitedZonesArr();
 
             if (!vZones.contains(zone.getId())) {
-                visitedZonesObject.addZone(zone.getId());
+                visitedZonesObject.addZone(zone.getId(),mySpace);
 
                 SharedPreferences.Editor editor = preferences.edit();
                 editor.putString("visited_zones", visitedZonesObject.toString());

@@ -18,7 +18,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.storage.FirebaseStorage;
 import com.iscte.guide.models.MapInfo;
 import com.iscte.guide.models.VisitedZones;
 
@@ -36,13 +35,15 @@ public class MapActivity extends AppCompatActivity {
     private DatabaseReference dbSettingsRef;
     private DatabaseReference dbMapInfoRef;
 
+    private String mySpace;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
 
         SharedPreferences preferences = getSharedPreferences(PREFS_NAME,0);
-        String mySpace = preferences.getString("current_space", "Default");
+        mySpace = preferences.getString("current_space", "Default");
 
         FirebaseApp app = FirebaseApp.getInstance(mySpace);
         FirebaseDatabase database = FirebaseDatabase.getInstance(app);
@@ -54,8 +55,6 @@ public class MapActivity extends AppCompatActivity {
         ((TextView)findViewById(R.id.mapTitle)).setText(title);
 
         mapInfos = new ArrayList<>();
-
-        getVisitedZones();
 
         getDBInfo();
     }
@@ -155,7 +154,7 @@ public class MapActivity extends AppCompatActivity {
             return  vZones;
 
         }else{
-            ArrayList<String> vZones = new VisitedZones(visitedZones).getVisitedZonesArr();
+            ArrayList<String> vZones = new VisitedZones(visitedZones,mySpace).getVisitedZonesArr();
 
             return vZones;
         }
