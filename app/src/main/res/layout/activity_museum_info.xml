@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.iscte.guide.MuseumInfoActivity"
+    android:background="@color/background_color">
+
+    <TextView
+        android:id="@+id/museumName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="TextView" />
+
+    <LinearLayout
+        android:id="@+id/linearLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:orientation="horizontal"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/museumName">
+
+        <Button
+            android:id="@+id/appButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_weight="1"
+            android:onClick="appButtonClicked"
+            android:text="App"
+            android:textAllCaps="false"
+            app:layout_constraintTop_toBottomOf="@+id/museumName"
+            tools:layout_editor_absoluteX="36dp" />
+
+        <Button
+            android:id="@+id/locationButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_weight="1"
+            android:onClick="locationButtonClicked"
+            android:text="See Location"
+            android:textAllCaps="false"
+            app:layout_constraintTop_toBottomOf="@+id/museumName"
+            tools:layout_editor_absoluteX="246dp" />
+
+    </LinearLayout>
+
+    <GridLayout
+        android:id="@+id/gridLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:alignmentMode="alignBounds"
+        android:columnCount="4"
+        android:columnOrderPreserved="false"
+        android:useDefaultMargins="true"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout">
+
+        <TextView
+            android:id="@+id/priceTV"
+            android:layout_gravity="end"
+            android:text="Price:"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/priceValueTV"
+            android:layout_gravity="start"
+            tools:text="Price Values" />
+
+        <TextView
+            android:id="@+id/hoursTV"
+            android:layout_column="0"
+            android:layout_gravity="end"
+            android:text="Hours:"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/hoursValueTV"
+            android:layout_gravity="start"
+            tools:text="Hours" />
+
+        <TextView
+            android:id="@+id/addressTV"
+            android:layout_column="0"
+            android:layout_gravity="end"
+            android:text="Address:"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/addressValueTV"
+            android:layout_gravity="start"
+            tools:text="Address" />
+    </GridLayout>
+
+    <TextView
+        android:id="@+id/currentRatingTV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Rating"
+        android:textStyle="bold"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/gridLayout" />
+
+    <RatingBar
+        android:id="@+id/currentRatingRB"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:numStars="5"
+        android:isIndicator="true"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/currentRatingTV" />
+
+    <TextView
+        android:id="@+id/myRatingTV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Your Rate"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/currentRatingRB" />
+
+    <RatingBar
+        android:id="@+id/myRatingRB"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:numStars="5"
+        android:isIndicator="false"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/myRatingTV" />
+
+    <Button
+        android:id="@+id/submitRate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:onClick="submitClicked"
+        android:text="Submit"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/myRatingRB" />
+
+</android.support.constraint.ConstraintLayout>

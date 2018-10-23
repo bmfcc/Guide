@@ -17,4 +17,6 @@
     <string name="Get_My_Zone">Get My Zone</string>
     <string name="News">News</string>
     <string name="title_activity_news_view">NewsView</string>
+
+    <string name="museumLocationLink"><u>See location here</u></string>
 </resources>

@@ -35,7 +35,14 @@
         <activity
             android:name=".MapActivity"
             android:parentActivityName=".Main2Activity" />
-        <activity android:name=".GetSpace"></activity>
+        <activity android:name=".GetSpace" />
+        <activity android:name=".IntroActivity" />
+        <activity
+            android:name=".MuseumsActivity"
+            android:parentActivityName=".IntroActivity" />
+        <activity
+            android:name=".MuseumInfoActivity"
+            android:parentActivityName=".MuseumsActivity"/>
     </application>
 
 </manifest>

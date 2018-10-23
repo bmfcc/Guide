@@ -67,6 +67,7 @@ public class Main2Activity extends AppCompatActivity
     private String language;
     private String previousLanguage;
     private String mySpace;
+    private boolean limited;
 
     private String zoneNotFound = "You have not passed any of our zones yet";
     private String zoneFound = "Your last zone was: zoneID! Do you wanna know more?";
@@ -116,6 +117,7 @@ public class Main2Activity extends AppCompatActivity
 
         Intent myIntent = getIntent();
         previousLanguage = myIntent.getStringExtra("prevLanguage");
+        limited = myIntent.getBooleanExtra("limited",false);
 
         previousLanguage = previousLanguage == null ? language : previousLanguage;
 
@@ -150,7 +152,6 @@ public class Main2Activity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_language) {
-            // Handle the camera action
             selectLanguage();
             finish();
         } else if (id == R.id.nav_myZone) {
@@ -159,13 +160,17 @@ public class Main2Activity extends AppCompatActivity
         } else if (id == R.id.nav_map) {
             Intent intent = new Intent(this, MapActivity.class);
             intent.putExtra("mapTitle",item.getTitle());
+            intent.putExtra("limited",limited);
             startActivity(intent);
         } else if (id == R.id.nav_news) {
             Intent intent = new Intent(this, NewsRV.class);
+            intent.putExtra("limited",limited);
             startActivity(intent);
             finish();
         } else if (id == R.id.nav_report) {
-
+            Intent intent = new Intent(this, IntroActivity.class);
+            startActivity(intent);
+            finish();
         } else if (id == R.id.nav_classify) {
             Intent intent = new Intent(this, GetSpace.class);
             startActivity(intent);
@@ -184,6 +189,7 @@ public class Main2Activity extends AppCompatActivity
 
     public void selectLanguage(){
         Intent intent = new Intent(this, SelectLanguage.class);
+        intent.putExtra("limited",limited);
         startActivity(intent);
     }
 
@@ -487,7 +493,7 @@ public class Main2Activity extends AppCompatActivity
 
         database = FirebaseDatabase.getInstance();
 
-        DatabaseReference allowedApps = database.getReference("allowedApps").child(mySpace);
+        DatabaseReference allowedApps = database.getReference("museums").child(mySpace).child("appInfo");
 
         ValueEventListener postListener = new ValueEventListener() {
             @Override
