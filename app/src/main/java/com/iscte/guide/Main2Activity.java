@@ -42,6 +42,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.iscte.guide.models.AppInfo;
+import com.iscte.guide.models.Exhibition;
 import com.iscte.guide.models.History;
 import com.iscte.guide.models.Menu;
 import com.iscte.guide.models.Messages;
@@ -59,6 +60,7 @@ import me.relex.circleindicator.CircleIndicator;
 public class Main2Activity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
+    //region variables
     private ProximityObserver proximityObserver;
     private ProximityObserver.Handler proximityHandler = null;
     private String CHANNEL_ID = "notification_channelID";
@@ -89,6 +91,8 @@ public class Main2Activity extends AppCompatActivity
 
     public static final String PREFS_NAME = "MyPrefsFile";
 
+    //endregion
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -114,15 +118,20 @@ public class Main2Activity extends AppCompatActivity
         SharedPreferences preferences = getSharedPreferences(PREFS_NAME,0);
         language = preferences.getString("selected_language", "Default");
         mySpace = preferences.getString("current_space", "Default");
+        //limited = preferences.getBoolean("limited",false);
 
         Intent myIntent = getIntent();
+
+        /*String spaceAux = myIntent.getStringExtra("mySpace");
+        mySpace = spaceAux!=null && !spaceAux.isEmpty() ? spaceAux : mySpace;*/
+        limited = myIntent.getBooleanExtra("limited",true);
+
         previousLanguage = myIntent.getStringExtra("prevLanguage");
-        limited = myIntent.getBooleanExtra("limited",false);
 
         previousLanguage = previousLanguage == null ? language : previousLanguage;
 
         if(mySpace.equals("Default")){
-            Intent intent = new Intent(this, GetSpace.class);
+            Intent intent = new Intent(this, IntroActivity.class);
             startActivity(intent);
             finish();
         }else {
@@ -155,6 +164,11 @@ public class Main2Activity extends AppCompatActivity
             selectLanguage();
             finish();
         } else if (id == R.id.nav_myZone) {
+            SharedPreferences preferences = getSharedPreferences(PREFS_NAME,0);
+            SharedPreferences.Editor editor=preferences.edit();
+            editor.putString("museumItem","elefante_africano");
+            editor.putString("museumItem_desc", "Aves");
+            editor.commit();
             getMyZone();
 
         } else if (id == R.id.nav_map) {
@@ -172,9 +186,8 @@ public class Main2Activity extends AppCompatActivity
             startActivity(intent);
             finish();
         } else if (id == R.id.nav_classify) {
-            Intent intent = new Intent(this, GetSpace.class);
+            Intent intent = new Intent(this, ExhibitionList.class);
             startActivity(intent);
-            finish();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -251,26 +264,66 @@ public class Main2Activity extends AppCompatActivity
                         .build();
 
         ProximityZone zone1 = this.proximityObserver.zoneBuilder()
-                .forAttachmentKeyAndValue("beacon_from", mySpace)
+                .forAttachmentKeyAndValue("beacon_from", getResources().getString(R.string.beacon_id))
                 .inNearRange()
                 .withOnEnterAction(new Function1<ProximityAttachment, Unit>() {
                     @Override
                     public Unit invoke(ProximityAttachment attachment) {
-                        String zoo_location = "";
-                        String zoo_location_desc = "";
                         if(attachment.hasAttachment()){
-                            zoo_location = attachment.getPayload().get("beacon_location");
-                            zoo_location_desc = attachment.getPayload().get("beacon_location_desc");
+                            SharedPreferences preferences = getSharedPreferences(PREFS_NAME,0);
+                            SharedPreferences.Editor editor=preferences.edit();
+
+                            String museumItem = "";
+                            String museumItem_desc = "";
+                            String museumZone = "";
+                            String museumZone_desc = "";
+                            String museumExhibition = "";
+                            String museumExhibition_desc = "";
+                            String museumId = "";
+                            String museumId_desc = "";
+
+                            String beacon_info = attachment.getPayload().get("beacon_item");
+
+                            if(!beacon_info.isEmpty()){
+                                museumItem = beacon_info;
+                                museumItem_desc = attachment.getPayload().get("beacon_item_desc");
+                            }else{
+                                beacon_info = attachment.getPayload().get("beacon_zone");
+                                if(!beacon_info.isEmpty()){
+                                    museumZone = beacon_info;
+                                    museumZone_desc = attachment.getPayload().get("beacon_zone_desc");
+                                }else{
+                                    beacon_info = attachment.getPayload().get("beacon_exhibition");
+                                    if(!beacon_info.isEmpty()){
+                                        museumExhibition = beacon_info;
+                                        museumExhibition_desc = attachment.getPayload().get("beacon_exhibition_desc");
+                                    }
+                                }
+                            }
+
+                            museumId = attachment.getPayload().get("beacon_museum");
+                            if(!museumId.isEmpty() && museumId != mySpace) {
+                                museumId = beacon_info;
+                                museumId_desc = attachment.getPayload().get("beacon_museum_desc");
+
+                                //Mostrar notificação a avisar que foi intercetado um beacon de um museu diferente do que está
+                            }
+
+                            museumZone = attachment.getPayload().get("beacon_zone");
+                            museumZone_desc = attachment.getPayload().get("beacon_zone_desc");
+
+                            editor.putString("museumItem",museumItem);
+                            editor.putString("museumItem_desc",museumItem_desc);
+                            editor.putString("museumZone",museumZone);
+                            editor.putString("museumZone_desc",museumZone_desc);
+                            //editor.putBoolean("limited", false);
+                            editor.commit();
                         }
 
-                        builder.setContentText(notificationMsg.replace("zoneID",zoo_location_desc));
+                        //builder.setContentText(notificationMsg.replace("zoneID",museumZone_desc));
                         notificationManager.notify(64647, builder.build());
 
-                        SharedPreferences preferences = getSharedPreferences(PREFS_NAME,0);
-                        SharedPreferences.Editor editor=preferences.edit();
-                        editor.putString("zoo_location",zoo_location);
-                        editor.putString("zoo_location_desc",zoo_location_desc);
-                        editor.commit();
+
 
                         return null;
                     }
@@ -313,11 +366,12 @@ public class Main2Activity extends AppCompatActivity
 
     private void getMyZone(){
         final AlertDialog.Builder dialBuilder1 = new AlertDialog.Builder(this);
-        final Intent zoneIntent = new Intent(this, ZoneInfo.class);
+        //final Intent zoneIntent = new Intent(this, ZoneInfo.class);
+        final Intent zoneIntent = new Intent(this, ItemInfo.class);
 
         SharedPreferences preferences = getSharedPreferences(PREFS_NAME,0);
-        zoneID =  preferences.getString("zoo_location", "Default");
-        String zone_desc = preferences.getString("zoo_location_desc","Default");
+        zoneID =  preferences.getString("museumZone", "Default");
+        String zone_desc = preferences.getString("museumZone_desc","Default");
 
         if(zone_desc!="Default") {
             dialBuilder1.setMessage(zoneFound.replace("zoneID",zone_desc))
@@ -556,7 +610,7 @@ public class Main2Activity extends AppCompatActivity
                 if (proximityHandler != null) {
                     proximityHandler.stop();
                 }
-                setupBeacons();
+                //setupBeacons();
 
                 SetupBeacons.getInstance().setSetupBeacons("False");
             }

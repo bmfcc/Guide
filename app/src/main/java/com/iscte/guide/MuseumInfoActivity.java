@@ -1,6 +1,7 @@
 package com.iscte.guide;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -25,6 +26,7 @@ import java.util.ArrayList;
 public class MuseumInfoActivity extends AppCompatActivity {
 
     private Museum museum;
+    public static final String PREFS_NAME = "MyPrefsFile";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,8 +50,14 @@ public class MuseumInfoActivity extends AppCompatActivity {
     }
 
     public void appButtonClicked(View v){
+        SharedPreferences preferences = getSharedPreferences(PREFS_NAME,0);
+        SharedPreferences.Editor editor=preferences.edit();
+        editor.putString("current_space",museum.getId());
+        editor.commit();
+
         Intent intent = new Intent(this,Main2Activity.class);
-        intent.putExtra("limited",true);
+        //intent.putExtra("mySpace",museum.getId());
+        intent.putExtra("limited", true);
         startActivity(intent);
     }
 

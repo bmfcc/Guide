@@ -42,7 +42,15 @@
             android:parentActivityName=".IntroActivity" />
         <activity
             android:name=".MuseumInfoActivity"
-            android:parentActivityName=".MuseumsActivity"/>
+            android:parentActivityName=".MuseumsActivity" />
+        <activity
+            android:name=".ItemInfo"
+            android:parentActivityName=".ZoneInfo" />
+        <activity
+            android:name=".ExhibitionList"
+            android:parentActivityName=".Main2Activity" />
+        <activity android:name=".ExhibitionInfo"
+            android:parentActivityName=".ExhibitionList"/>
     </application>
 
 </manifest>

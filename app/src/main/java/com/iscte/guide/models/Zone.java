@@ -1,5 +1,7 @@
 package com.iscte.guide.models;
 
+import java.util.List;
+
 /**
  * Created by b.coitos on 5/23/2018.
  */
@@ -7,18 +9,20 @@ package com.iscte.guide.models;
 public class Zone {
     private String name;
     private String id;
-    private String audioFile;
+    private String startDate;
     private String description;
-    private String imageFile;
+    private String endDate;
+    private List<String> itemsList;
 
     public Zone(){}
 
-    public Zone(String name, String id, String audioFile, String imageFile, String description){
+    public Zone(String name, String id, String startDate, String endDate, String description, List<String> itemsList){
         this.name=name;
         this.id=id;
-        this.audioFile=audioFile;
-        this.imageFile = imageFile;
+        this.startDate=startDate;
+        this.endDate = endDate;
         this.description=description;
+        this.itemsList=itemsList;
     }
 
     public String getName() {
@@ -37,12 +41,12 @@ public class Zone {
         this.id = id;
     }
 
-    public String getAudioFile() {
-        return audioFile;
+    public String getStartDate() {
+        return startDate;
     }
 
-    public void setAudioFile(String audioFile) {
-        this.audioFile = audioFile;
+    public void setStartDate(String startDate) {
+        this.startDate = startDate;
     }
 
     public String getDescription() {
@@ -53,12 +57,19 @@ public class Zone {
         this.description = description;
     }
 
-    public String getImageFile() {
-        return imageFile;
+    public String getEndDate() {
+        return endDate;
     }
 
-    public void setImageFile(String imageFile) {
-        this.imageFile = imageFile;
+    public void setEndDate(String endDate) {
+        this.endDate = endDate;
     }
 
+    public List<String> getItemsList() {
+        return itemsList;
+    }
+
+    public void setItemsList(List<String> itemsList) {
+        this.itemsList = itemsList;
+    }
 }

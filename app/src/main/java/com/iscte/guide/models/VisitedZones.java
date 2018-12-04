@@ -47,7 +47,8 @@ public class VisitedZones {
         Type type = new TypeToken<ArrayList<String>>(){}.getType();
 
         try {
-            visitedZonesArr = gson.fromJson(visitedZonesJson.getString(mySpace), type);
+            if(visitedZonesJson!=null)
+                visitedZonesArr = gson.fromJson(visitedZonesJson.getString(mySpace), type);
         } catch (JSONException e) {
             e.printStackTrace();
         }

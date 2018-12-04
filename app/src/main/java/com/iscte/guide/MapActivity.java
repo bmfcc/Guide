@@ -121,11 +121,13 @@ public class MapActivity extends AppCompatActivity {
                 // Get Post object and use the values to update the UI
                 ArrayList<String> vZones = getVisitedZones();
 
-                for(String zone: vZones){
-                    MapInfo mapInfo = dataSnapshot.child(zone).getValue(MapInfo.class);
+                if(vZones!=null) {
+                    for (String zone : vZones) {
+                        MapInfo mapInfo = dataSnapshot.child(zone).getValue(MapInfo.class);
 
-                    if(mapInfo != null)
-                        mapInfos.add(mapInfo);
+                        if (mapInfo != null)
+                            mapInfos.add(mapInfo);
+                    }
                 }
 
                 dbSettingsRef.addListenerForSingleValueEvent(postSettingsListener);

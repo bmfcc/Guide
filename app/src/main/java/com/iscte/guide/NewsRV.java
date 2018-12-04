@@ -125,7 +125,7 @@ public class NewsRV extends AppCompatActivity implements NavigationView.OnNaviga
         final Intent zoneIntent = new Intent(this, ZoneInfo.class);
 
         SharedPreferences preferences = getSharedPreferences(PREFS_NAME,0);
-        zoneID =  preferences.getString("zoo_location", "Default");
+        zoneID =  preferences.getString("museumZone", "Default");
 
         if(zoneID!="Default") {
             dialBuilder1.setMessage("Your last zone was: " + zoneID + "! Do you wanna know more?")
