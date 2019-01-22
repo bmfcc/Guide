@@ -22,6 +22,7 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.FirebaseApp;
+import com.google.firebase.FirebaseOptions;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -31,6 +32,7 @@ import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.iscte.guide.models.AppInfo;
 import com.iscte.guide.models.VisitedZones;
 import com.iscte.guide.models.Item;
 
@@ -56,11 +58,17 @@ public class ItemInfo extends AppCompatActivity implements SeekBar.OnSeekBarChan
     private DatabaseReference dbStatsRef;
 
     private FirebaseStorage storage;
+    private FirebaseDatabase database;
     private StorageReference storageRef;
     private StorageReference imagesRef;
     private StorageReference audioRef;
+    private FirebaseApp app;
 
     private String mySpace;
+    private String museumItemId;
+    private String language;
+
+    private AppInfo appInfo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,24 +76,24 @@ public class ItemInfo extends AppCompatActivity implements SeekBar.OnSeekBarChan
         setContentView(R.layout.activity_item_info);
         SharedPreferences preferences = getSharedPreferences(PREFS_NAME,0);
 
-        String stringItem = preferences.getString("museumItem", "Default");
+        museumItemId = preferences.getString("museumItem", "Default");
 
         //get intent para saber o id do museu
         Intent intent = getIntent();
         String itemID= intent.getStringExtra("itemID");
 
         if(itemID!=null){
-            stringItem=itemID;
+            museumItemId=itemID;
         }
 
-        if(stringItem.equals("Default")){
+        if(museumItemId.equals("Default")){
             Toast toast = Toast.makeText(getApplicationContext(), "Not found!", Toast.LENGTH_SHORT);
             toast.show();
             finish();
             return;
         }
 
-        String language = preferences.getString("selected_language","Default");
+        language = preferences.getString("selected_language","Default");
         mySpace = preferences.getString("current_space", "Default");
 
         if(language.equals("Default")){
@@ -101,9 +109,68 @@ public class ItemInfo extends AppCompatActivity implements SeekBar.OnSeekBarChan
             language="EN";
         }
 
-        FirebaseApp app = FirebaseApp.getInstance(mySpace);
-        FirebaseDatabase database = FirebaseDatabase.getInstance(app);
-        dbRef = database.getReference("Items").child(language+"/"+stringItem);
+
+        getDBInstance();
+
+    }
+
+    private void getDBInstance(){
+
+        database = FirebaseDatabase.getInstance();
+
+        DatabaseReference allowedApps = database.getReference("museums").child(mySpace).child("appInfo");
+
+        ValueEventListener postListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                // Get Post object and use the values to update the UI
+
+                appInfo = dataSnapshot.getValue(AppInfo.class);
+
+                getAppInstance();
+                // ...
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                // Getting Post failed, log a message
+                Log.w("GetBDValueError", "loadPost:onCancelled", databaseError.toException());
+                appInfo = null;
+                // ...
+            }
+        };
+        allowedApps.addListenerForSingleValueEvent(postListener);
+
+    }
+
+    private void getAppInstance() {
+
+        boolean existApp = false;
+
+        for (FirebaseApp appAux : FirebaseApp.getApps(this)) {
+            if (appAux.getName().equals(mySpace)) {
+                existApp = true;
+                break;
+            }
+        }
+
+        if (!existApp) {
+            FirebaseOptions options = new FirebaseOptions.Builder()
+                    .setApplicationId(appInfo.getApplicationId()) // Required for Analytics.
+                    .setApiKey(appInfo.getApiKey()) // Required for Auth.
+                    .setDatabaseUrl(appInfo.getDatabaseURL()) // Required for RTDB.
+                    .setStorageBucket(appInfo.getStorageBucket())
+                    .build();
+
+            FirebaseApp.initializeApp(this, options, mySpace);
+        }
+
+        app = FirebaseApp.getInstance(mySpace);
+        database = FirebaseDatabase.getInstance(app);
+
+        Log.e("TESTING_ITEM", "getAppInstance: " + database.toString());
+
+        dbRef = database.getReference("Items").child(language+"/"+museumItemId);
         dbStatsRef = database.getReference("Stats");
 
         storage = FirebaseStorage.getInstance(app);
@@ -113,7 +180,7 @@ public class ItemInfo extends AppCompatActivity implements SeekBar.OnSeekBarChan
 
         getDBInfo();
 
-        setDBInfo(stringItem);
+        setDBInfo(museumItemId);
     }
 
     @Override
@@ -325,6 +392,9 @@ public class ItemInfo extends AppCompatActivity implements SeekBar.OnSeekBarChan
     }
 
     private void setDBInfo(String item){
+        Log.e("TESTING_ITEM", "setDBInfo: " + dbStatsRef.toString());
+        Log.e("TESTING_ITEM", "setDBInfo: " + getDate());
+        Log.e("TESTING_ITEM", "setDBInfo: " + item);
         DatabaseReference visitsRef = dbStatsRef.child("Visits/"+getDate()+"/"+item);
 
         visitsRef.runTransaction(new Transaction.Handler() {

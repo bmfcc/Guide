@@ -45,13 +45,22 @@ public class IntroActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_intro);
 
-        String setupBeacons = SetupBeacons.getInstance().getSetupBeacons();
+        SharedPreferences preferences = getSharedPreferences(PREFS_NAME,0);
+        String mySpace = preferences.getString("current_space", "Default");
 
-        if (setupBeacons.equals("True")) {
+        if(!mySpace.equals("Default")){
+            Intent intent = new Intent(this, Main2Activity.class);
+            startActivity(intent);
+            finish();
+        }else{
+            String setupBeacons = SetupBeacons.getInstance().getSetupBeacons();
 
-            setupBeacons();
+            if (setupBeacons.equals("True")) {
 
-            SetupBeacons.getInstance().setSetupBeacons("False");
+                setupBeacons();
+
+                SetupBeacons.getInstance().setSetupBeacons("False");
+            }
         }
 
     }
@@ -111,6 +120,7 @@ public class IntroActivity extends AppCompatActivity {
                 .withOnEnterAction(new Function1<ProximityAttachment, Unit>() {
                     @Override
                     public Unit invoke(ProximityAttachment attachment) {
+                        Log.d("BORA", "invoke: PORRAAAAAAAAAA");
                         if(attachment.hasAttachment()){
                             SharedPreferences preferences = getSharedPreferences(PREFS_NAME,0);
                             SharedPreferences.Editor editor=preferences.edit();
@@ -138,6 +148,8 @@ public class IntroActivity extends AppCompatActivity {
 
                             if(museumId != mySpace) {
                                 notificationIntent.putExtra("mySpace",museumId);
+                                editor.putString("current_space",museumId);
+                                editor.commit();
                             }
 
                             TaskStackBuilder stackBuilder = TaskStackBuilder.create(getApplicationContext());
@@ -166,7 +178,7 @@ public class IntroActivity extends AppCompatActivity {
                                 museumItem_desc = attachment.getPayload().get("beacon_item_desc");
                                 builder.setContentText(notificationItem.replace("itemID",museumItem_desc));
                                 stackBuilder.addParentStack(ItemInfo.class);
-                                //notificationIntent = new Intent(getApplicationContext(), Item.class);
+                                notificationIntent = new Intent(getApplicationContext(), ItemInfo.class);
                             }else{
                                 beacon_info = attachment.getPayload().get("beacon_zone");
                                 if(!beacon_info.isEmpty()){
@@ -181,6 +193,7 @@ public class IntroActivity extends AppCompatActivity {
                                         museumExhibition = beacon_info;
                                         museumExhibition_desc = attachment.getPayload().get("beacon_exhibition_desc");
                                         notificationIntent = new Intent(getApplicationContext(), ExhibitionInfo.class);
+                                        notificationIntent.putExtra("exhibition", museumExhibition);
                                         stackBuilder.addParentStack(ExhibitionInfo.class);
                                         builder.setContentText(notificationExhibition.replace("exhibitionID",museumExhibition_desc));
                                     }else{

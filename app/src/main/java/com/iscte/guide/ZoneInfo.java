@@ -17,6 +17,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.google.firebase.FirebaseApp;
+import com.google.firebase.FirebaseOptions;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -24,6 +25,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.iscte.guide.models.AppInfo;
 import com.iscte.guide.models.Item;
 import com.iscte.guide.models.Zone;
 
@@ -42,6 +44,9 @@ public class ZoneInfo extends AppCompatActivity {
     private Zone zone;
 
     private FirebaseApp app;
+    private FirebaseDatabase database;
+
+    private AppInfo appInfo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,7 +72,7 @@ public class ZoneInfo extends AppCompatActivity {
         language = preferences.getString("selected_language","Default");
         zoneId = preferences.getString("museumZone", "Default");
 
-        if(zoneId.equals("Default")){
+        if(zoneId.equals("Default") || zoneId.isEmpty()){
             Toast toast = Toast.makeText(getApplicationContext(), "Not found!", Toast.LENGTH_SHORT);
             toast.show();
             finish();
@@ -87,14 +92,65 @@ public class ZoneInfo extends AppCompatActivity {
             language="EN";
         }
 
-        if(mySpace!="Default") {
-            app = FirebaseApp.getInstance(mySpace);
-        }else{
-            app = FirebaseApp.getInstance();
+        getDBInstance();
+
+    }
+
+    private void getDBInstance(){
+
+        database = FirebaseDatabase.getInstance();
+
+        DatabaseReference allowedApps = database.getReference("museums").child(mySpace).child("appInfo");
+
+        ValueEventListener postListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                // Get Post object and use the values to update the UI
+
+                appInfo = dataSnapshot.getValue(AppInfo.class);
+
+                getAppInstance();
+                // ...
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                // Getting Post failed, log a message
+                Log.w("GetBDValueError", "loadPost:onCancelled", databaseError.toException());
+                appInfo = null;
+                // ...
+            }
+        };
+        allowedApps.addListenerForSingleValueEvent(postListener);
+
+    }
+
+    private void getAppInstance() {
+
+        boolean existApp = false;
+
+        for (FirebaseApp appAux : FirebaseApp.getApps(this)) {
+            if (appAux.getName().equals(mySpace)) {
+                existApp = true;
+                break;
+            }
         }
 
-        getZone();
+        if (!existApp) {
+            FirebaseOptions options = new FirebaseOptions.Builder()
+                    .setApplicationId(appInfo.getApplicationId()) // Required for Analytics.
+                    .setApiKey(appInfo.getApiKey()) // Required for Auth.
+                    .setDatabaseUrl(appInfo.getDatabaseURL()) // Required for RTDB.
+                    .setStorageBucket(appInfo.getStorageBucket())
+                    .build();
 
+            FirebaseApp.initializeApp(this, options, mySpace);
+        }
+
+        app = FirebaseApp.getInstance(mySpace);
+        database = FirebaseDatabase.getInstance(app);
+
+        getZone();
     }
 
     private void getZone(){

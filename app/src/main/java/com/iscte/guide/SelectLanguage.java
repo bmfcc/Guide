@@ -88,6 +88,8 @@ public class SelectLanguage extends AppCompatActivity {
 
     }
 
+
+
     public void selectLanguage(View view) {
 
         spinner = findViewById(R.id.spinner);
@@ -108,6 +110,7 @@ public class SelectLanguage extends AppCompatActivity {
 
     private void getDBInfo(){
 
+        Log.e("TESTING_APP_Select", "space: " + mySpace);
         FirebaseApp app = FirebaseApp.getInstance(mySpace);
         FirebaseDatabase database = FirebaseDatabase.getInstance(app);
 
